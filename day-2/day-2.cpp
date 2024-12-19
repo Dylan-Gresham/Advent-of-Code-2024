@@ -19,7 +19,6 @@ std::vector<int> split(const std::string &in, char delimiter) {
 void part_one(void) {
     std::ifstream in_file("input");
     std::string line;
-    const char *delimiter = " ";
 
     int num_safe = 0;
     while (std::getline(in_file, line)) {
@@ -73,13 +72,90 @@ void part_one(void) {
     std::cout << "There are " << num_safe << " safe reports." << std::endl;
 }
 
-void part_two(void) {
+bool is_safe(const std::vector<int> &reports, int skip_index = -1) {
+    bool decreasing = false, increasing = false;
 
+    for (int i = 1; i < reports.size(); i++) {
+        if (i == skip_index) {
+            continue;
+        }
+
+        int current = reports[i];
+        int previous;
+        if (i - 1 == skip_index) {
+            if (i - 2 >= 0) {
+                previous = reports[i - 2];
+            } else {
+                continue;
+            }
+        } else {
+            previous = reports[i - 1];
+        }
+
+        int difference = std::abs(previous - current);
+        if (difference < 1 || difference > 3) {
+            return false;
+        }
+
+        if (!decreasing && !increasing) {
+            if (previous > current) {
+                decreasing = true;
+            } else if (previous < current) {
+                increasing = true;
+            } else {
+                return false;
+            }
+        } else if (decreasing) {
+            if (previous <= current) {
+                return false;
+            }
+        } else if (increasing) {
+            if (previous >= current) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void part_two(void) {
+    std::ifstream in_file("input");
+    if (!in_file.is_open()) {
+        std::cerr << "Failed to open input file." << std::endl;
+
+        return;
+    }
+
+    std::string line;
+
+    int num_safe = 0;
+    while (std::getline(in_file, line)) {
+        std::vector<int> reports = split(line, ' ');
+        
+        if (is_safe(reports)) {
+            num_safe++;
+        } else {
+            bool found_safe = false;
+            for (int i = 0; i < reports.size(); i++) {
+                if (is_safe(reports, i)) {
+                    found_safe = true;
+                    break;
+                }
+            }
+
+            if (found_safe) {
+                num_safe++;
+            }
+        }
+    }
+
+    std::cout << "There are " << num_safe << " safe reports with the Problem Dampener in effect." << std::endl;
 }
 
 int main(void) {
     part_one();
-    // part_two();
+    part_two();
 
     return 0;
 }
