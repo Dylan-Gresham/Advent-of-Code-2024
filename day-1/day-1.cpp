@@ -3,23 +3,30 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 
-int main(void) {
-    /* Parse file into two lists */
+std::vector<int> left_list, right_list;
+std::map<int, int> counts;
+
+void parse_input(void) {
+     /* Parse file into two lists */
     std::ifstream in_file("input");
     std::string str;
-
-    std::vector<int> left_list, right_list;
+    
     while (std::getline(in_file, str)) {
         int space_index = str.find(' ');
-        std::string left_part = str.substr(0, space_index);
-        std::string right_part = str.substr(space_index + 1, str.length());
+        int left_part = std::stoi(str.substr(0, space_index));
+        int right_part = std::stoi(str.substr(space_index + 1, str.length()));
 
-        left_list.push_back(std::stoi(left_part));
-        right_list.push_back(std::stoi(right_part));
+        left_list.push_back(left_part);
+        right_list.push_back(right_part);
+
+        counts[right_part] += 1; 
     }
+}
 
-    /* Sort both lists in ascending order */
+void part_one(void) {
+     /* Sort both lists in ascending order */
     std::sort(left_list.begin(), left_list.end());
     std::sort(right_list.begin(), right_list.end());
     
@@ -30,6 +37,23 @@ int main(void) {
     }
 
     std::cout << "Total distance = " << total_distance << std::endl;
+}
+
+void part_two(void) {
+    int similarity_score = 0;
+
+    for (int i = 0; i < left_list.size(); i++) {
+        similarity_score += left_list[i] * counts[left_list[i]];
+    }
+
+    std::cout << "Similarity score = " << similarity_score << std::endl;
+}
+
+int main(void) {
+    parse_input();
+
+    part_one();
+    part_two();
 
     return 0;
 }
